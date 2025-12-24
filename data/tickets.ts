@@ -7,7 +7,7 @@ export type Ticket = {
 export const tickets: Ticket[] = [
   // A 祝福 1-8
   { id: 1, category: "blessing", text: "願你今年的努力，都在明年慢慢發芽 🌱" },
-  { id: 2, category: "blessing", text: "聖誕快樂，你值得被好好對待 🤍" },
+  { id: 2, category: "blessing", text: "聖誕快樂，你值得被好好對待 ❤️" },
   { id: 3, category: "blessing", text: "願你在寒冷的季節，也有人替你保溫" },
   { id: 4, category: "blessing", text: "今年辛苦了，請對自己溫柔一點" },
   { id: 5, category: "blessing", text: "明年的你，會感謝現在沒有放棄的自己" },
