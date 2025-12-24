@@ -11,3 +11,108 @@
 body {
   margin: 0;
 }
+
+/* ---- Cookie Crack Animation ---- */
+.cookie {
+  height: 100%;
+  width: 200%;
+  border-radius: 9999px;
+  background:
+    radial-gradient(circle at 35% 30%, rgba(255,255,255,0.35), rgba(255,255,255,0) 42%),
+    radial-gradient(circle at 70% 65%, rgba(0,0,0,0.12), rgba(0,0,0,0) 55%),
+    linear-gradient(180deg, #d1a46f, #b98451);
+  box-shadow:
+    inset 0 18px 35px rgba(255,255,255,0.10),
+    inset 0 -22px 40px rgba(0,0,0,0.18),
+    0 30px 80px rgba(0,0,0,0.35);
+  position: relative;
+}
+
+/* 巧克力豆 */
+.cookie::before,
+.cookie::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 18% 26%, #5b371e 0 10px, transparent 11px),
+    radial-gradient(circle at 48% 20%, #4a2d19 0 9px, transparent 10px),
+    radial-gradient(circle at 75% 30%, #5a351e 0 11px, transparent 12px),
+    radial-gradient(circle at 30% 55%, #4f2f1b 0 10px, transparent 11px),
+    radial-gradient(circle at 62% 58%, #6a3f22 0 12px, transparent 13px),
+    radial-gradient(circle at 82% 60%, #4a2d19 0 9px, transparent 10px),
+    radial-gradient(circle at 44% 78%, #5b371e 0 11px, transparent 12px),
+    radial-gradient(circle at 16% 78%, #4a2d19 0 9px, transparent 10px);
+  opacity: 0.95;
+}
+
+/* 左右半邊：用 overflow-hidden 切半 */
+.cookie-half.left .cookie { transform: translateX(0%); }
+.cookie-half.right .cookie { transform: translateX(-50%); }
+
+.cookie-left,
+.cookie-right {
+  transition: transform 1200ms cubic-bezier(.2,.9,.2,1);
+}
+
+/* 裂痕 */
+.crack-line {
+  background:
+    linear-gradient(180deg,
+      transparent 0%,
+      rgba(255,255,255,0.20) 10%,
+      rgba(0,0,0,0.35) 50%,
+      rgba(255,255,255,0.15) 90%,
+      transparent 100%);
+  border-radius: 999px;
+  filter: blur(0.2px);
+  transform: rotate(2deg);
+}
+
+/* cracking 階段：微抖 + 分開一點 */
+.cookie-left-cracking .cookie-left { transform: translate(-10px, -2px) rotate(-1deg); }
+.cookie-right-cracking .cookie-right { transform: translate(10px, 2px) rotate(1deg); }
+
+/* cracked 階段：大幅分開 */
+.cookie-left-cracked .cookie-left { transform: translate(-44px, -10px) rotate(-8deg); }
+.cookie-right-cracked .cookie-right { transform: translate(44px, 10px) rotate(8deg); }
+
+/* 碎屑 */
+.crumbs {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+}
+
+.crumb {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: #b98451;
+  border-radius: 4px;
+  opacity: 0;
+  box-shadow: inset 0 2px 4px rgba(255,255,255,0.15);
+}
+
+.crumbs-go .crumb {
+  animation: crumb-fly 900ms ease-out forwards;
+}
+
+@keyframes crumb-fly {
+  0% { transform: translate(0, 0) scale(1); opacity: 0; }
+  15% { opacity: 1; }
+  100% { transform: translate(var(--tx), var(--ty)) rotate(var(--rot)) scale(0.9); opacity: 0; }
+}
+
+/* 每顆碎屑給不同方向 */
+.c1 { left: 50%; top: 35%; --tx: -40px; --ty: -60px; --rot: -30deg; }
+.c2 { left: 52%; top: 38%; --tx: 30px; --ty: -70px; --rot: 20deg; }
+.c3 { left: 48%; top: 42%; --tx: -70px; --ty: -10px; --rot: -80deg; }
+.c4 { left: 54%; top: 44%; --tx: 70px; --ty: -5px; --rot: 70deg; }
+.c5 { left: 50%; top: 50%; --tx: -90px; --ty: 20px; --rot: -120deg; }
+.c6 { left: 52%; top: 52%; --tx: 95px; --ty: 25px; --rot: 110deg; }
+.c7 { left: 49%; top: 56%; --tx: -60px; --ty: 80px; --rot: -40deg; }
+.c8 { left: 54%; top: 58%; --tx: 55px; --ty: 85px; --rot: 50deg; }
+.c9 { left: 50%; top: 62%; --tx: -20px; --ty: 110px; --rot: -10deg; }
+.c10 { left: 52%; top: 64%; --tx: 20px; --ty: 115px; --rot: 10deg; }
+

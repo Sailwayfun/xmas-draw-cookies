@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "format": "prettier --write ."
   },
   "dependencies": {
@@ -15,6 +15,7 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.1.0",
     "@tailwindcss/postcss": "^4.0.0",
     "@types/node": "^20.11.30",
     "@types/react": "^19.0.0",
