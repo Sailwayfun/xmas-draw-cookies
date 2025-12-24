@@ -12,6 +12,36 @@ body {
   margin: 0;
 }
 
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.fade-in-up {
+  animation: fade-in-up 500ms ease-out both;
+}
+
+@keyframes fade-out-down {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+
+.fade-out-down {
+  animation: fade-out-down 200ms ease-in both;
+}
+
 /* ---- Cookie Crack Animation ---- */
 .cookie {
   height: 100%;
@@ -115,4 +145,3 @@ body {
 .c8 { left: 54%; top: 58%; --tx: 55px; --ty: 85px; --rot: 50deg; }
 .c9 { left: 50%; top: 62%; --tx: -20px; --ty: 110px; --rot: -10deg; }
 .c10 { left: 52%; top: 64%; --tx: 20px; --ty: 115px; --rot: 10deg; }
-

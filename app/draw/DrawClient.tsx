@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { drawTicketStable, resetDraw } from "@/lib/draw";
 import type { Ticket } from "@/data/tickets";
 import { DrawCard } from "@/components/DrawCard";
@@ -26,6 +26,8 @@ export default function DrawClient() {
   const [revealRequested, setRevealRequested] = useState(false);
   const [crackKey, setCrackKey] = useState(0);
   const [error, setError] = useState<string>("");
+  const [isFadingOut, setIsFadingOut] = useState(false);
+  const fadeTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -45,6 +47,9 @@ export default function DrawClient() {
 
     return () => {
       alive = false;
+      if (fadeTimeoutRef.current) {
+        window.clearTimeout(fadeTimeoutRef.current);
+      }
     };
   }, [LIFF_ID]);
 
@@ -65,10 +70,14 @@ export default function DrawClient() {
 
   function onRedraw() {
     if (!identity) return;
-    resetDraw(identity.userId);
-    setRevealRequested(false);
-    setTicket(null);
-    setCrackKey((value) => value + 1);
+    setIsFadingOut(true);
+    fadeTimeoutRef.current = window.setTimeout(() => {
+      resetDraw(identity.userId);
+      setRevealRequested(false);
+      setTicket(null);
+      setCrackKey((value) => value + 1);
+      setIsFadingOut(false);
+    }, 220);
   }
 
   function handleCrackDone() {
@@ -100,36 +109,39 @@ export default function DrawClient() {
           </div>
 
           <div className="mt-6">
-            <CookieCrack key={crackKey} onCrackDone={handleCrackDone} />
-          </div>
-
-          {ticket && (
-            <>
-              <div className="mt-8">
+            {!ticket ? (
+              <div className={isFadingOut ? "fade-out-down" : ""}>
+                <CookieCrack key={crackKey} onCrackDone={handleCrackDone} />
+              </div>
+            ) : (
+              <div
+                className={isFadingOut ? "fade-out-down" : "fade-in-up"}
+                key={ticket.id}
+              >
                 <DrawCard name={identity.displayName} ticket={ticket} />
+
+                <div className="mt-4 flex gap-2">
+                  <button
+                    className="flex-1 rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-left"
+                    onClick={onRedraw}
+                  >
+                    我想重抽（重置本機）
+                  </button>
+
+                  <a
+                    className="flex-1 rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-left"
+                    href={ogUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    開啟小卡圖片（可存圖）
+                  </a>
+                </div>
+
+                <ShareButtons liff={identity.liff} ogUrl={ogUrl} disabled={!ticket} />
               </div>
-
-              <div className="mt-4 flex gap-2">
-                <button
-                  className="flex-1 rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-left"
-                  onClick={onRedraw}
-                >
-                  我想重抽（重置本機）
-                </button>
-
-                <a
-                  className="flex-1 rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-left"
-                  href={ogUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  開啟小卡圖片（可存圖）
-                </a>
-              </div>
-
-              <ShareButtons liff={identity.liff} ogUrl={ogUrl} disabled={!ticket} />
-            </>
-          )}
+            )}
+          </div>
         </>
       )}
     </main>
