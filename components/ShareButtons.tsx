@@ -1,7 +1,9 @@
 "use client";
 
+import type { LiffSDK } from "@/lib/liff";
+
 type Props = {
-  liff: any | null;
+  liff: LiffSDK | null;
   ogUrl: string;
   disabled?: boolean;
 };

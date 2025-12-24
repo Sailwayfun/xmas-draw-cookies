@@ -1,10 +1,12 @@
 "use client";
 
+import type { LiffSDK } from "@/lib/liff";
+
 type Identity = {
   mode: "liff" | "dev";
   userId: string;
   displayName: string;
-  liff: any | null;
+  liff: LiffSDK | null;
 };
 
 function getOrCreateDevUserId() {
@@ -18,7 +20,6 @@ function getOrCreateDevUserId() {
 }
 
 export async function getIdentity(liffId?: string): Promise<Identity> {
-  // 允許用 ?dev=1 或 NEXT_PUBLIC_DEV=1 強制 dev mode
   const url = new URL(window.location.href);
   const forceDev = url.searchParams.get("dev") === "1";
 
@@ -33,15 +34,11 @@ export async function getIdentity(liffId?: string): Promise<Identity> {
     };
   }
 
-  // 嘗試載入 LIFF：失敗就回退 dev
   try {
     const { initLiff } = await import("./liff");
     const res = await initLiff(liffId);
 
-    // 若在瀏覽器且未登入，initLiff 會呼叫 liff.login() 並 return null
-    // 但在 dev 預覽我們不想跳轉，因此：偵測非 LINE 環境時直接 fallback
     if (!res) {
-      // 如果你仍想在瀏覽器也能跳 LINE login，就把這段 fallback 拿掉
       return {
         mode: "dev",
         userId: getOrCreateDevUserId(),

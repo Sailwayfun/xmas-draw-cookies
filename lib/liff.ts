@@ -1,12 +1,31 @@
 "use client";
 
+type LiffProfile = {
+  userId: string;
+  displayName: string;
+};
+
+type LiffShareMessage =
+  | { type: "text"; text: string }
+  | { type: "image"; originalContentUrl: string; previewImageUrl: string };
+
+type LiffSDK = {
+  init: (options: { liffId: string }) => Promise<void>;
+  isLoggedIn: () => boolean;
+  login: () => void;
+  getProfile: () => Promise<LiffProfile>;
+  shareTargetPicker: (messages: LiffShareMessage[]) => Promise<void>;
+};
+
 declare global {
   interface Window {
-    liff?: any;
+    liff?: LiffSDK;
   }
 }
 
-export async function loadLiffSDK(): Promise<any> {
+export type { LiffProfile, LiffSDK, LiffShareMessage };
+
+export async function loadLiffSDK(): Promise<LiffSDK> {
   if (typeof window === "undefined") throw new Error("Client only");
 
   if (window.liff) return window.liff;

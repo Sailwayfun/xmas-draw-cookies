@@ -6,12 +6,13 @@ import type { Ticket } from "@/data/tickets";
 import { DrawCard } from "@/components/DrawCard";
 import { ShareButtons } from "@/components/ShareButtons";
 import { getIdentity } from "@/lib/identity";
+import type { LiffSDK } from "@/lib/liff";
 
 type Identity = {
   mode: "liff" | "dev";
   userId: string;
   displayName: string;
-  liff: any | null;
+  liff: LiffSDK | null;
 };
 
 export default function DrawPage() {
@@ -33,11 +34,10 @@ export default function DrawPage() {
 
         setIdentity(id);
 
-        // 只要有 userId，就能抽（LIFF 或 DEV 都行）
         const t = drawTicketStable(id.userId);
         setTicket(t);
-      } catch (e: any) {
-        setError(e?.message ?? String(e));
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : String(err));
       } finally {
         setLoading(false);
       }
@@ -110,7 +110,6 @@ export default function DrawPage() {
             </a>
           </div>
 
-          {/* DEV 模式仍可看小卡、複製連結；LIFF 分享按鈕會自動 disabled */}
           <ShareButtons liff={identity.liff} ogUrl={ogUrl} disabled={!ticket} />
         </>
       )}
