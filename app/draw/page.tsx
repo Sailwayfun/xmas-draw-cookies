@@ -5,6 +5,7 @@ import { drawTicketStable, resetDraw } from "@/lib/draw";
 import type { Ticket } from "@/data/tickets";
 import { DrawCard } from "@/components/DrawCard";
 import { ShareButtons } from "@/components/ShareButtons";
+import { CookieCrack } from "@/components/CookieCrack";
 import { getIdentity } from "@/lib/identity";
 import type { LiffSDK } from "@/lib/liff";
 
@@ -23,6 +24,7 @@ export default function DrawPage() {
   const [identity, setIdentity] = useState<Identity | null>(null);
   const [ticket, setTicket] = useState<Ticket | null>(null);
   const [error, setError] = useState<string>("");
+  const [isRevealed, setIsRevealed] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -31,11 +33,7 @@ export default function DrawPage() {
       try {
         const id = await getIdentity(LIFF_ID);
         if (!alive) return;
-
         setIdentity(id);
-
-        const t = drawTicketStable(id.userId);
-        setTicket(t);
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : String(err));
       } finally {
@@ -57,11 +55,19 @@ export default function DrawPage() {
     return url.toString();
   }, [ticket, identity, APP_URL]);
 
+  function onCrackDone() {
+    if (!identity) return;
+    const t = drawTicketStable(identity.userId);
+    setTicket(t);
+    setIsRevealed(true);
+  }
+
   function onRedraw() {
     if (!identity) return;
     resetDraw(identity.userId);
     const t = drawTicketStable(identity.userId);
     setTicket(t);
+    setIsRevealed(false);
   }
 
   return (
@@ -88,29 +94,39 @@ export default function DrawPage() {
             )}
           </div>
 
-          <div className="mt-6">
-            <DrawCard name={identity.displayName} ticket={ticket} />
-          </div>
+          {!isRevealed && (
+            <div className="mt-8 rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur">
+              <CookieCrack onCrackDone={onCrackDone} />
+            </div>
+          )}
 
-          <div className="mt-4 flex gap-2">
-            <button
-              className="flex-1 rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-left"
-              onClick={onRedraw}
-            >
-              我想重抽（重置本機）
-            </button>
+          {isRevealed && (
+            <>
+              <div className="mt-6">
+                <DrawCard name={identity.displayName} ticket={ticket} />
+              </div>
 
-            <a
-              className="flex-1 rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-left"
-              href={ogUrl}
-              target="_blank"
-              rel="noreferrer"
-            >
-              開啟小卡圖片（可存圖）
-            </a>
-          </div>
+              <div className="mt-4 flex gap-2">
+                <button
+                  className="flex-1 rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-left"
+                  onClick={onRedraw}
+                >
+                  我想重抽（重置本機）
+                </button>
 
-          <ShareButtons liff={identity.liff} ogUrl={ogUrl} disabled={!ticket} />
+                <a
+                  className="flex-1 rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-left"
+                  href={ogUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  開啟小卡圖片（可存圖）
+                </a>
+              </div>
+
+              <ShareButtons liff={identity.liff} ogUrl={ogUrl} disabled={!ticket} />
+            </>
+          )}
         </>
       )}
     </main>
