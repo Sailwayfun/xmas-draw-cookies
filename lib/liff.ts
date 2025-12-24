@@ -11,6 +11,7 @@ type LiffShareMessage =
 
 type LiffSDK = {
   init: (options: { liffId: string }) => Promise<void>;
+  isInClient: () => boolean;
   isLoggedIn: () => boolean;
   login: () => void;
   getProfile: () => Promise<LiffProfile>;
@@ -47,7 +48,9 @@ export async function initLiff(liffId: string) {
   await liff.init({ liffId });
 
   if (!liff.isLoggedIn()) {
-    liff.login();
+    if (liff.isInClient()) {
+      liff.login();
+    }
     return null;
   }
 
