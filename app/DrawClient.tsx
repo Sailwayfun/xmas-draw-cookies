@@ -29,22 +29,43 @@ export default function DrawClient() {
   const [isFadingOut, setIsFadingOut] = useState(false);
   const [debugEnabled, setDebugEnabled] = useState(false);
   const fadeTimeoutRef = useRef<number | null>(null);
+  const [initRequested, setInitRequested] = useState(false);
+  const [initState, setInitState] = useState<"idle" | "loading" | "done">("idle");
 
   useEffect(() => {
-    let alive = true;
     const url = new URL(window.location.href);
     if (url.searchParams.get("debug") === "1") {
       setDebugEnabled(true);
     }
+    const forceDev = url.searchParams.get("dev") === "1";
+    const isLikelyLine =
+      typeof navigator !== "undefined" &&
+      /line|liff/i.test(navigator.userAgent ?? "");
+    if (!forceDev && LIFF_ID && isLikelyLine) {
+      setInitRequested(true);
+      setLoading(true);
+    }
+    return () => {
+      if (fadeTimeoutRef.current) {
+        window.clearTimeout(fadeTimeoutRef.current);
+      }
+    };
+  }, [LIFF_ID]);
+
+  useEffect(() => {
+    if (!initRequested) return;
+    let alive = true;
+    setInitState("loading");
 
     (async () => {
       try {
         const id = await getIdentity(LIFF_ID);
         if (!alive) return;
-
         setIdentity(id);
+        setInitState("done");
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : String(err));
+        setInitState("done");
       } finally {
         setLoading(false);
       }
@@ -52,11 +73,8 @@ export default function DrawClient() {
 
     return () => {
       alive = false;
-      if (fadeTimeoutRef.current) {
-        window.clearTimeout(fadeTimeoutRef.current);
-      }
     };
-  }, [LIFF_ID]);
+  }, [LIFF_ID, initRequested]);
 
   useEffect(() => {
     if (!identity || !revealRequested) return;
@@ -93,11 +111,37 @@ export default function DrawClient() {
     setRevealRequested(true);
   }
 
+  function handleStart() {
+    setInitRequested(true);
+    setLoading(true);
+  }
+
   return (
     <main className="mx-auto max-w-xl px-6 py-10">
       <h1 className="text-3xl font-bold">🎄 抽籤區</h1>
 
-      {loading && <div className="mt-4 opacity-80">初始化中…</div>}
+      {!initRequested && !loading && (
+        <div className="mt-6">
+          <button
+            className="rounded-xl border border-white/15 bg-white/10 px-5 py-3"
+            onClick={handleStart}
+          >
+            開始抽籤 →
+          </button>
+          <div className="mt-3 text-xs opacity-70">第一次會初始化 LIFF，可能需要數秒。</div>
+        </div>
+      )}
+
+      {loading && (
+        <div className="mt-6">
+          <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
+            <div className="h-full w-2/3 animate-pulse rounded-full bg-white/40" />
+          </div>
+          <div className="mt-3 text-xs opacity-70">
+            {initState === "loading" ? "初始化中…" : "準備中…"}
+          </div>
+        </div>
+      )}
 
       {error && (
         <div className="mt-4 rounded-xl border border-red-400/30 bg-red-500/10 p-4 text-sm">
@@ -105,7 +149,7 @@ export default function DrawClient() {
         </div>
       )}
 
-      {!loading && identity && (
+      {initRequested && !loading && identity && (
         <>
           <div className="mt-3 text-xs opacity-70">
             模式：{identity.mode === "liff" ? "LIFF（正式）" : "DEV（瀏覽器預覽）"}
