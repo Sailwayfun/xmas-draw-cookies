@@ -27,10 +27,15 @@ export default function DrawClient() {
   const [crackKey, setCrackKey] = useState(0);
   const [error, setError] = useState<string>("");
   const [isFadingOut, setIsFadingOut] = useState(false);
+  const [debugEnabled, setDebugEnabled] = useState(false);
   const fadeTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     let alive = true;
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("debug") === "1") {
+      setDebugEnabled(true);
+    }
 
     (async () => {
       try {
@@ -63,10 +68,12 @@ export default function DrawClient() {
     const text = ticket?.text ?? "";
     const name = identity?.displayName ?? "";
     const category = ticket?.category ?? "";
+    const cacheBust = ticket ? String(ticket.id) : String(Date.now());
     const url = new URL("/api/og", APP_URL);
     url.searchParams.set("text", text);
     url.searchParams.set("name", name);
     if (category) url.searchParams.set("category", category);
+    url.searchParams.set("v", cacheBust);
     return url.toString();
   }, [ticket, identity, APP_URL]);
 
@@ -142,6 +149,25 @@ export default function DrawClient() {
             )}
           </div>
         </>
+      )}
+
+      {debugEnabled && (
+        <div className="fixed bottom-4 left-4 right-4 z-50 rounded-xl border border-white/15 bg-black/70 p-4 text-xs text-white">
+          <div className="font-semibold">Debug Panel</div>
+          <div className="mt-2">
+            liffId: {LIFF_ID ? "set" : "missing"} | appUrl: {APP_URL}
+          </div>
+          <div className="mt-1">
+            mode: {identity?.mode ?? "n/a"} | userId: {identity?.userId ?? "n/a"}
+          </div>
+          <div className="mt-1">
+            inClient: {identity?.liff?.isInClient?.() ? "yes" : "no"} | loggedIn:{" "}
+            {identity?.liff?.isLoggedIn?.() ? "yes" : "no"}
+          </div>
+          <div className="mt-1">ticket: {ticket ? `${ticket.id} (${ticket.category})` : "n/a"}</div>
+          <div className="mt-1 break-all">ogUrl: {ogUrl}</div>
+          {error && <div className="mt-1 text-red-300">error: {error}</div>}
+        </div>
       )}
     </main>
   );
