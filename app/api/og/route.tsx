@@ -1,6 +1,8 @@
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { ImageResponse } from "next/og";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 const categories = ["blessing", "task", "prank", "xmas", "future", "healing"] as const;
 type Category = (typeof categories)[number];
@@ -27,8 +29,10 @@ export async function GET(req: Request) {
   const category = categories.includes(categoryParam as Category)
     ? (categoryParam as Category)
     : "blessing";
-  const origin = new URL(req.url).origin;
-  const bgUrl = `${origin}/og/${backgroundByCategory[category]}`;
+  const bgPath = path.join(process.cwd(), "public", "og", backgroundByCategory[category]);
+  const bgBuffer = await readFile(bgPath);
+  const bgBase64 = bgBuffer.toString("base64");
+  const bgUrl = `data:image/png;base64,${bgBase64}`;
 
   return new ImageResponse(
     <div
@@ -102,6 +106,12 @@ export async function GET(req: Request) {
         <div style={{ background: "#cccccc", color: "#333", padding: "0 8px" }}>#ChristmasDraw</div>
       </div>
     </div>,
-    { width: 1080, height: 1920 },
+    {
+      width: 1080,
+      height: 1920,
+      headers: {
+        "Cache-Control": "no-store, max-age=0",
+      },
+    },
   );
 }
