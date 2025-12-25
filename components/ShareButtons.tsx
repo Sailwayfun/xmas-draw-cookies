@@ -12,6 +12,8 @@ export function ShareButtons({ liff, ogUrl, disabled }: Props) {
   async function shareToLine() {
     if (!liff) return;
 
+    const shareUrl = `${ogUrl}${ogUrl.includes("?") ? "&" : "?"}v=${Date.now()}`;
+
     await liff.shareTargetPicker([
       {
         type: "text",
@@ -19,8 +21,8 @@ export function ShareButtons({ liff, ogUrl, disabled }: Props) {
       },
       {
         type: "image",
-        originalContentUrl: ogUrl,
-        previewImageUrl: ogUrl,
+        originalContentUrl: shareUrl,
+        previewImageUrl: shareUrl,
       },
     ]);
   }

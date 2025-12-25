@@ -7,13 +7,9 @@ const __dirname = path.dirname(__filename);
 
 const compat = new FlatCompat({ baseDirectory: __dirname });
 
-export default [{
-    ignores: [
-        '.next/**',
-        'node_modules/**',
-        'out/**',
-        'dist/**',
-        '*.config.mjs',
-        "next-env.d.ts"
-    ],
-}, ...compat.extends("next/core-web-vitals", "next/typescript")];
+export default [
+  {
+    ignores: [".next/**", "node_modules/**", "out/**", "dist/**", "*.config.mjs", "next-env.d.ts"],
+  },
+  ...compat.extends("next/core-web-vitals", "next/typescript"),
+];

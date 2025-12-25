@@ -44,19 +44,12 @@ export async function GET(req: Request) {
         backgroundColor: "#0b1020",
         display: "flex",
         flexDirection: "column",
+        backgroundImage: `url(${bgUrl})`,
+        backgroundSize: "1080px 1920px",
+        backgroundPosition: "0 0",
+        backgroundRepeat: "no-repeat",
       }}
     >
-      <img
-        src={bgUrl}
-        alt="christmas background"
-        style={{
-          position: "absolute",
-          left: -420,
-          top: 0,
-          width: 1920,
-          height: 1920,
-        }}
-      />
       <div
         style={{
           position: "absolute",

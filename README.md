@@ -41,9 +41,11 @@ NEXT_PUBLIC_DEV_MODE=0
 LIFF 需要 https 網域，建議用 ngrok 或部署到 Vercel：
 
 - ngrok（範例）：
+
   ```bash
   ngrok http 3000
   ```
+
   取得 `https://xxxx.ngrok.io` 後填入 `NEXT_PUBLIC_APP_URL`。
 
 - Vercel：部署後把 `NEXT_PUBLIC_APP_URL` 改成正式網域。
@@ -85,4 +87,3 @@ A: 確認 `NEXT_PUBLIC_APP_URL` 是 https 網域且可公開存取 `public/og/*.
 
 - 更新 `NEXT_PUBLIC_APP_URL` 為正式網域
 - 在 LINE Developers Console 更新 LIFF Endpoint URL
-
