@@ -40,22 +40,26 @@ export default function DrawClient() {
     const forceDev = url.searchParams.get("dev") === "1";
     const isLikelyLine =
       typeof navigator !== "undefined" && /line|liff/i.test(navigator.userAgent ?? "");
-    if (!forceDev && LIFF_ID && isLikelyLine) {
+    if (!forceDev) {
       const scheduleInit = () => {
         setInitRequested(true);
         setLoading(true);
       };
 
-      if (typeof window !== "undefined") {
-        const ric = (
-          window as Window & { requestIdleCallback?: (cb: IdleRequestCallback) => number }
-        ).requestIdleCallback;
+      if (LIFF_ID && isLikelyLine) {
+        if (typeof window !== "undefined") {
+          const ric = (
+            window as Window & { requestIdleCallback?: (cb: IdleRequestCallback) => number }
+          ).requestIdleCallback;
 
-        if (ric) {
-          ric(scheduleInit);
-        } else {
-          window.setTimeout(scheduleInit, 500);
+          if (ric) {
+            ric(scheduleInit);
+          } else {
+            window.setTimeout(scheduleInit, 500);
+          }
         }
+      } else {
+        scheduleInit();
       }
     }
     return () => {

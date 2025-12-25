@@ -23,10 +23,13 @@ export async function getIdentity(liffId?: string): Promise<Identity> {
   const url = new URL(window.location.href);
   const forceDev = url.searchParams.get("dev") === "1";
   const forceDevEnv = process.env.NEXT_PUBLIC_DEV_MODE === "1";
+  const isLikelyLine =
+    typeof navigator !== "undefined" &&
+    /line|liff/i.test(navigator.userAgent ?? "");
 
   const devName = url.searchParams.get("name") || "Dev Preview";
 
-  if (forceDev || forceDevEnv || !liffId) {
+  if (forceDev || forceDevEnv || !liffId || !isLikelyLine) {
     return {
       mode: "dev",
       userId: getOrCreateDevUserId(),
