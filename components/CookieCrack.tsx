@@ -22,7 +22,7 @@ export function CookieCrack({ onCrackDone, auto = false, disabled = false }: Pro
       setCracking(false);
       onCrackDone?.();
     }, 1200);
-  }, [cracked, cracking, onCrackDone]);
+  }, [cracked, cracking, onCrackDone, disabled]);
 
   useEffect(() => {
     if (auto && !disabled) start();
