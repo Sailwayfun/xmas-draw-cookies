@@ -5,14 +5,15 @@ import { useEffect, useState, useCallback } from "react";
 type Props = {
   onCrackDone?: () => void;
   auto?: boolean; // 在 draw 頁可用 auto=true 進頁就裂
+  disabled?: boolean;
 };
 
-export function CookieCrack({ onCrackDone, auto = false }: Props) {
+export function CookieCrack({ onCrackDone, auto = false, disabled = false }: Props) {
   const [cracking, setCracking] = useState(false);
   const [cracked, setCracked] = useState(false);
 
   const start = useCallback(() => {
-    if (cracking || cracked) return;
+    if (disabled || cracking || cracked) return;
     setCracking(true);
 
     // 動畫總長（跟 CSS duration 對齊）
@@ -24,8 +25,8 @@ export function CookieCrack({ onCrackDone, auto = false }: Props) {
   }, [cracked, cracking, onCrackDone]);
 
   useEffect(() => {
-    if (auto) start();
-  }, [auto, start]);
+    if (auto && !disabled) start();
+  }, [auto, disabled, start]);
 
   return (
     <div className="flex flex-col items-center">
@@ -80,15 +81,19 @@ export function CookieCrack({ onCrackDone, auto = false }: Props) {
         </div>
       </div>
 
-      <button
-        onClick={start}
-        disabled={cracking || cracked}
-        className="mt-6 w-full max-w-xs rounded-xl border border-white/15 bg-white/10 px-5 py-3 text-left disabled:opacity-50"
-      >
-        {cracked ? "已裂開 ✅" : cracking ? "裂開中…" : "開始抽籤 →"}
-      </button>
+      {!disabled && (
+        <>
+          <button
+            onClick={start}
+            disabled={cracking || cracked}
+            className="mt-6 w-full max-w-xs rounded-xl border border-white/15 bg-white/10 px-5 py-3 text-left disabled:opacity-50"
+          >
+            {cracked ? "已裂開 ✅" : cracking ? "裂開中…" : "開始抽籤 →"}
+          </button>
 
-      <div className="mt-2 text-xs opacity-70">點一下餅乾，讓它裂開，抽出你的聖誕籤 🍪</div>
+          <div className="mt-2 text-xs opacity-70">點一下餅乾，讓它裂開，抽出你的聖誕籤 🍪</div>
+        </>
+      )}
     </div>
   );
 }

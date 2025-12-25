@@ -26,6 +26,8 @@ declare global {
 
 export type { LiffProfile, LiffSDK, LiffShareMessage };
 
+let liffInitPromise: Promise<{ liff: LiffSDK; profile: LiffProfile } | null> | null = null;
+
 export async function loadLiffSDK(): Promise<LiffSDK> {
   if (typeof window === "undefined") throw new Error("Client only");
 
@@ -44,16 +46,20 @@ export async function loadLiffSDK(): Promise<LiffSDK> {
 }
 
 export async function initLiff(liffId: string) {
-  const liff = await loadLiffSDK();
-  await liff.init({ liffId });
+  if (liffInitPromise) return liffInitPromise;
+  liffInitPromise = (async () => {
+    const liff = await loadLiffSDK();
+    await liff.init({ liffId });
 
-  if (!liff.isLoggedIn()) {
-    if (liff.isInClient()) {
-      liff.login();
+    if (!liff.isLoggedIn()) {
+      if (liff.isInClient()) {
+        liff.login();
+      }
+      return null;
     }
-    return null;
-  }
 
-  const profile = await liff.getProfile();
-  return { liff, profile };
+    const profile = await liff.getProfile();
+    return { liff, profile };
+  })();
+  return liffInitPromise;
 }

@@ -39,11 +39,24 @@ export default function DrawClient() {
     }
     const forceDev = url.searchParams.get("dev") === "1";
     const isLikelyLine =
-      typeof navigator !== "undefined" &&
-      /line|liff/i.test(navigator.userAgent ?? "");
+      typeof navigator !== "undefined" && /line|liff/i.test(navigator.userAgent ?? "");
     if (!forceDev && LIFF_ID && isLikelyLine) {
-      setInitRequested(true);
-      setLoading(true);
+      const scheduleInit = () => {
+        setInitRequested(true);
+        setLoading(true);
+      };
+
+      if (typeof window !== "undefined") {
+        const ric = (
+          window as Window & { requestIdleCallback?: (cb: IdleRequestCallback) => number }
+        ).requestIdleCallback;
+
+        if (ric) {
+          ric(scheduleInit);
+        } else {
+          window.setTimeout(scheduleInit, 500);
+        }
+      }
     }
     return () => {
       if (fadeTimeoutRef.current) {
@@ -134,6 +147,9 @@ export default function DrawClient() {
 
       {loading && (
         <div className="mt-6">
+          <div className="mb-4 opacity-70">
+            <CookieCrack disabled />
+          </div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
             <div className="h-full w-2/3 animate-pulse rounded-full bg-white/40" />
           </div>
